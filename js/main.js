@@ -1,6 +1,4 @@
 //точка входа. Модуль, который связывает другие модули;
-import {createPhotos} from './data.js';
+import { renderThumbnails } from './photo.js';
 
-const photos = createPhotos();
-
-console.log(photos);
+renderThumbnails();
