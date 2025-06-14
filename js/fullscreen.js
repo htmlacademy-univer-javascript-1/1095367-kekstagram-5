@@ -7,74 +7,114 @@ const commentsLoader = bigPicture.querySelector('.comments-loader');
 const bigPictureImg = bigPicture.querySelector('.big-picture__img img');
 const likesCount = bigPicture.querySelector('.likes-count');
 const socialCaption = bigPicture.querySelector('.social__caption');
-const socialFooter = bigPicture.querySelector('.social__footer');
 
-const renderComments = (comments) => {
-  socialComments.innerHTML = '';
+// Переменные для управления комментариями
+let currentComments = [];
+let commentsShown = 0;
+const COMMENTS_PER_PORTION = 5;
 
-  comments.forEach((comment) => {
-    const commentElement = document.createElement('li');
-    commentElement.classList.add('social__comment');
+const createComment = (commentData) => {
+  const comment = document.createElement('li');
+  comment.classList.add('social__comment');
 
-    commentElement.innerHTML = `
-      <img class="social__picture" src="${comment.avatar}" alt="${comment.name}" width="35" height="35">
-      <p class="social__text">${comment.message}</p>
-    `;
+  comment.innerHTML = `
+    <img class="social__picture" src="${commentData.avatar}" alt="${commentData.name}" width="35" height="35">
+    <p class="social__text">${commentData.message}</p>
+  `;
 
-    socialComments.appendChild(commentElement);
-  });
+  return comment;
 };
 
+// Функция отрисовки порции комментариев
+const renderCommentsPortion = () => {
+  const fragment = document.createDocumentFragment();
+  const commentsToShow = currentComments.slice(commentsShown, commentsShown + COMMENTS_PER_PORTION);
+
+  commentsToShow.forEach((comment) => {
+    fragment.appendChild(createComment(comment));
+  });
+
+  socialComments.appendChild(fragment);
+  commentsShown += commentsToShow.length;
+
+  // Обновляем счетчик
+  socialCommentCount.innerHTML = `${commentsShown} из <span class="comments-count">${currentComments.length}</span> комментариев`;
+
+  // Скрываем кнопку, если показаны все комментарии
+  if (commentsShown >= currentComments.length) {
+    commentsLoader.classList.add('hidden');
+  }
+};
+
+// Функция загрузки дополнительных комментариев
+const onCommentsLoaderClick = () => {
+  renderCommentsPortion();
+};
+
+// Функция сброса состояния комментариев
+const resetComments = () => {
+  socialComments.innerHTML = '';
+  commentsShown = 0;
+  commentsLoader.classList.remove('hidden');
+};
+
+// Функция закрытия модального окна
+const closeBigPicture = () => {
+  bigPicture.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
+};
+
+// Функция открытия модального окна
 const openBigPicture = (photo) => {
   bigPictureImg.src = photo.url;
-  bigPictureImg.alt = photo.description;
   likesCount.textContent = photo.likes;
   socialCaption.textContent = photo.description;
 
-  // Convert comment strings back to objects for rendering
-  const comments = photo.comments.map(commentStr => {
+  // Сбрасываем состояние комментариев
+  resetComments();
+
+  // Конвертируем строки комментариев в объекты
+  currentComments = photo.comments.map(commentStr => {
     const parts = commentStr.split(', ').reduce((acc, part) => {
       const [key, value] = part.split(': ');
       acc[key] = value;
       return acc;
     }, {});
     return {
-      id: parts.id,
       avatar: parts.avatar,
       name: parts.name,
       message: parts.message
     };
   });
 
-  renderComments(comments);
+  // Показываем блоки с комментариями
+  socialCommentCount.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
 
-  // Update comments count
-  const commentsCount = bigPicture.querySelector('.comments-count');
-  commentsCount.textContent = comments.length;
+  // Рендерим первую порцию комментариев
+  renderCommentsPortion();
 
-  // Hide comment count and loader as per requirements
-  socialCommentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
-  socialFooter.classList.add('hidden');
+  // Добавляем обработчики
+  commentsLoader.addEventListener('click', onCommentsLoaderClick);
+  document.addEventListener('keydown', onDocumentKeydown);
+  closeButton.addEventListener('click', onCloseButtonClick);
 
-  // Show the big picture and add modal class to body
+  // Показываем модальное окно
   bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
 };
 
-const closeBigPicture = () => {
-  bigPicture.classList.add('hidden');
-  document.body.classList.remove('modal-open');
-};
-
-closeButton.addEventListener('click', () => {
-  closeBigPicture();
-});
-
-document.addEventListener('keydown', (evt) => {
-  if (evt.key === 'Escape' && !bigPicture.classList.contains('hidden')) {
+// Обработчики закрытия (как в предыдущем коде)
+function onDocumentKeydown(evt) {
+  if (evt.key === 'Escape') {
+    evt.preventDefault();
     closeBigPicture();
   }
-});
+}
+
+function onCloseButtonClick() {
+  closeBigPicture();
+}
 
 export { openBigPicture };
