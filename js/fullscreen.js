@@ -13,14 +13,13 @@ let currentComments = [];
 let commentsShown = 0;
 const COMMENTS_PER_PORTION = 5;
 
-// Функция создания одного комментария
-const createComment = ({avatar, name, message}) => {
+const createComment = (commentData) => {
   const comment = document.createElement('li');
   comment.classList.add('social__comment');
 
   comment.innerHTML = `
-    <img class="social__picture" src="${avatar}" alt="${name}" width="35" height="35">
-    <p class="social__text">${message}</p>
+    <img class="social__picture" src="${commentData.avatar}" alt="${commentData.name}" width="35" height="35">
+    <p class="social__text">${commentData.message}</p>
   `;
 
   return comment;
