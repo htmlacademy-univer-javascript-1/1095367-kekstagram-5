@@ -13,7 +13,6 @@ const effectsList = uploadForm.querySelector('.effects__list');
 let currentEffect = 'none';
 let currentScale = 100;
 
-// Scale control
 const updateScale = (value) => {
   currentScale = value;
   scaleControl.value = `${value}%`;
@@ -32,7 +31,6 @@ scaleBigger.addEventListener('click', () => {
   }
 });
 
-// Effect slider
 noUiSlider.create(effectLevelSlider, {
   range: {
     min: 0,
@@ -49,8 +47,6 @@ noUiSlider.create(effectLevelSlider, {
 
 const updateEffect = (effect) => {
   currentEffect = effect;
-
-  // Reset slider visibility and image style
   effectLevelSlider.parentElement.classList.toggle('hidden', effect === 'none');
   uploadPreview.className = '';
   uploadPreview.style.filter = 'none';
@@ -60,8 +56,7 @@ const updateEffect = (effect) => {
     return;
   }
 
-  // Set slider range based on effect
-  const min = 0;
+  let min = 0;
   let max = 100;
   let step = 1;
   let start = 100;
@@ -120,14 +115,12 @@ effectLevelSlider.noUiSlider.on('update', () => {
   }
 });
 
-// Effect radio buttons
 effectsList.addEventListener('change', (evt) => {
   if (evt.target.matches('input[type="radio"]')) {
     updateEffect(evt.target.value);
   }
 });
 
-// Reset form
 const resetEditor = () => {
   updateScale(100);
   updateEffect('none');
