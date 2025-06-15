@@ -1,13 +1,24 @@
-// form.js
 import { isLineLengthLessOrEqual } from './functions.js';
 
-const uploadForm = document.querySelector('.img-upload__form');
-const uploadInput = uploadForm.querySelector('.img-upload__input');
-const uploadOverlay = uploadForm.querySelector('.img-upload__overlay');
-const uploadCancel = uploadForm.querySelector('.img-upload__cancel');
-const hashtagInput = uploadForm.querySelector('.text__hashtags');
-const descriptionInput = uploadForm.querySelector('.text__description');
+// Safe element query and verification
+const getElement = (parent, selector) => {
+  const el = parent ? parent.querySelector(selector) : null;
+  if (!el) console.warn(`Element not found: ${selector}`);
+  return el;
+};
 
+const uploadForm = document.querySelector('.img-upload__form');
+if (!uploadForm) throw new Error('Form element not found!');
+
+const elements = {
+  uploadInput: getElement(uploadForm, '.img-upload__input'),
+  uploadOverlay: getElement(uploadForm, '.img-upload__overlay'),
+  uploadCancel: getElement(uploadForm, '.img-upload__cancel'),
+  hashtagInput: getElement(uploadForm, '.text__hashtags'),
+  descriptionInput: getElement(uploadForm, '.text__description')
+};
+
+// Initialize Pristine only if form exists
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
@@ -16,85 +27,73 @@ const pristine = new Pristine(uploadForm, {
 
 // Validate hashtags
 const validateHashtags = (value) => {
-  if (value === '') {
-    return true;
-  }
+  if (!value.trim()) return true;
 
-  const hashtags = value.trim().split(/\s+/);
-
-  // Check for maximum 5 hashtags
-  if (hashtags.length > 5) {
-    return false;
-  }
+  const hashtags = value.trim().split(/\s+/).filter(Boolean);
+  if (hashtags.length > 5) return false;
 
   const hashtagRegex = /^#[a-zа-яё0-9]{1,19}$/i;
+  const lowerCaseTags = hashtags.map(t => t.toLowerCase());
 
-  for (const tag of hashtags) {
-    // Check hashtag format
-    if (!hashtagRegex.test(tag)) {
-      return false;
-    }
-
-    // Check for duplicates (case insensitive)
-    const lowerCaseTags = hashtags.map((t) => t.toLowerCase());
-    if (lowerCaseTags.indexOf(tag.toLowerCase()) !== lowerCaseTags.lastIndexOf(tag.toLowerCase())) {
-      return false;
-    }
-  }
-
-  return true;
+  return hashtags.every(tag =>
+    hashtagRegex.test(tag) &&
+    lowerCaseTags.indexOf(tag.toLowerCase()) === lowerCaseTags.lastIndexOf(tag.toLowerCase())
+  );
 };
 
-pristine.addValidator(
-  hashtagInput,
-  validateHashtags,
-  'Хэш-теги должны начинаться с #, содержать только буквы и цифры (максимум 20 символов), разделяться пробелами (максимум 5 тегов) и не повторяться'
-);
+// Add validators if elements exist
+if (elements.hashtagInput) {
+  pristine.addValidator(
+    elements.hashtagInput,
+    validateHashtags,
+    'Хэш-теги должны начинаться с #, содержать только буквы и цифры (максимум 20 символов), разделяться пробелами (максимум 5 тегов) и не повторяться'
+  );
+}
 
-// Validate description
-pristine.addValidator(
-  descriptionInput,
-  (value) => isLineLengthLessOrEqual(value, 140),
-  'Комментарий не может быть длиннее 140 символов'
-);
+if (elements.descriptionInput) {
+  pristine.addValidator(
+    elements.descriptionInput,
+    (value) => isLineLengthLessOrEqual(value, 140),
+    'Комментарий не может быть длиннее 140 символов'
+  );
+}
 
-// Prevent Esc propagation when inputs are focused
-[hashtagInput, descriptionInput].forEach((input) => {
-  input.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Escape') {
-      evt.stopPropagation();
-    }
+// Event management
+const addEvent = (el, type, handler) => el?.addEventListener(type, handler);
+
+// Prevent Esc propagation
+[elements.hashtagInput, elements.descriptionInput].forEach(input => {
+  addEvent(input, 'keydown', (evt) => {
+    if (evt.key === 'Escape') evt.stopPropagation();
   });
 });
 
-// Show upload overlay when file is selected
-uploadInput.addEventListener('change', () => {
-  uploadOverlay.classList.remove('hidden');
+// File input change
+addEvent(elements.uploadInput, 'change', () => {
+  elements.uploadOverlay?.classList.remove('hidden');
   document.body.classList.add('modal-open');
 });
 
-// Close upload form
+// Close form
 const closeUploadForm = () => {
   uploadForm.reset();
   pristine.reset();
-  uploadOverlay.classList.add('hidden');
+  elements.uploadOverlay?.classList.add('hidden');
   document.body.classList.remove('modal-open');
 };
 
-uploadCancel.addEventListener('click', closeUploadForm);
-
-document.addEventListener('keydown', (evt) => {
-  if (evt.key === 'Escape' && !uploadOverlay.classList.contains('hidden')) {
+addEvent(elements.uploadCancel, 'click', closeUploadForm);
+addEvent(document, 'keydown', (evt) => {
+  if (evt.key === 'Escape' && !elements.uploadOverlay?.classList.contains('hidden')) {
     closeUploadForm();
   }
 });
 
-// Form submit handler
-uploadForm.addEventListener('submit', (evt) => {
+// Form submission
+addEvent(uploadForm, 'submit', (evt) => {
   if (!pristine.validate()) {
     evt.preventDefault();
   }
 });
 
 export { closeUploadForm };
-
