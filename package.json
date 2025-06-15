@@ -24,5 +24,8 @@
     "node": "18",
     "npm": "9"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "pristinejs": "^1.1.0"
+  }
 }
