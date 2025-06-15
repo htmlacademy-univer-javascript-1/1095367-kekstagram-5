@@ -2,7 +2,6 @@
 import noUiSlider from './nouislider-wrapper.js';
 
 const uploadForm = document.querySelector('.img-upload__form');
-const uploadOverlay = uploadForm.querySelector('.img-upload__overlay');
 const uploadPreview = uploadForm.querySelector('.img-upload__preview img');
 const scaleControl = uploadForm.querySelector('.scale__control--value');
 const scaleSmaller = uploadForm.querySelector('.scale__control--smaller');
@@ -62,7 +61,7 @@ const updateEffect = (effect) => {
   }
 
   // Set slider range based on effect
-  let min = 0;
+  const min = 0;
   let max = 100;
   let step = 1;
   let start = 100;

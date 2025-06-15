@@ -3,12 +3,17 @@ import { isLineLengthLessOrEqual } from './functions.js';
 // Safe element query and verification
 const getElement = (parent, selector) => {
   const el = parent ? parent.querySelector(selector) : null;
-  if (!el) console.warn(`Element not found: ${selector}`);
+  if (!el) {
+    // eslint-disable-next-line no-console
+    console.warn(`Element not found: ${selector}`);
+  }
   return el;
 };
 
 const uploadForm = document.querySelector('.img-upload__form');
-if (!uploadForm) throw new Error('Form element not found!');
+if (!uploadForm) {
+  throw new Error('Form element not found!');
+}
 
 const elements = {
   uploadInput: getElement(uploadForm, '.img-upload__input'),
@@ -27,15 +32,19 @@ const pristine = new Pristine(uploadForm, {
 
 // Validate hashtags
 const validateHashtags = (value) => {
-  if (!value.trim()) return true;
+  if (!value.trim()) {
+    return true;
+  }
 
   const hashtags = value.trim().split(/\s+/).filter(Boolean);
-  if (hashtags.length > 5) return false;
+  if (hashtags.length > 5) {
+    return false;
+  }
 
   const hashtagRegex = /^#[a-zа-яё0-9]{1,19}$/i;
-  const lowerCaseTags = hashtags.map(t => t.toLowerCase());
+  const lowerCaseTags = hashtags.map((t) => t.toLowerCase());
 
-  return hashtags.every(tag =>
+  return hashtags.every((tag) =>
     hashtagRegex.test(tag) &&
     lowerCaseTags.indexOf(tag.toLowerCase()) === lowerCaseTags.lastIndexOf(tag.toLowerCase())
   );
@@ -62,9 +71,11 @@ if (elements.descriptionInput) {
 const addEvent = (el, type, handler) => el?.addEventListener(type, handler);
 
 // Prevent Esc propagation
-[elements.hashtagInput, elements.descriptionInput].forEach(input => {
+[elements.hashtagInput, elements.descriptionInput].forEach((input) => {
   addEvent(input, 'keydown', (evt) => {
-    if (evt.key === 'Escape') evt.stopPropagation();
+    if (evt.key === 'Escape') {
+      evt.stopPropagation();
+    }
   });
 });
 
