@@ -30,34 +30,15 @@ const openBigPicture = (photo) => {
   bigPictureImg.alt = photo.description;
   likesCount.textContent = photo.likes;
   socialCaption.textContent = photo.description;
+  renderComments(photo.comments);
 
-  // Convert comment strings back to objects for rendering
-  const comments = photo.comments.map((commentStr) => {
-    const parts = commentStr.split(', ').reduce((acc, part) => {
-      const [key, value] = part.split(': ');
-      acc[key] = value;
-      return acc;
-    }, {});
-    return {
-      id: parts.id,
-      avatar: parts.avatar,
-      name: parts.name,
-      message: parts.message
-    };
-  });
-
-  renderComments(comments);
-
-  // Update comments count
   const commentsCount = bigPicture.querySelector('.comments-count');
-  commentsCount.textContent = comments.length;
+  commentsCount.textContent = photo.comments.length;
 
-  // Hide comment count and loader as per requirements
   socialCommentCount.classList.add('hidden');
   commentsLoader.classList.add('hidden');
   socialFooter.classList.add('hidden');
 
-  // Show the big picture and add modal class to body
   bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
 };
