@@ -1299,6 +1299,37 @@ main {
 }
 
 
+/* Slider styles */
+.effect-level__slider {
+  width: 100%;
+  height: 4px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.noUi-connect {
+  background: #333;
+}
+
+.noUi-handle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #333;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.noUi-handle::before,
+.noUi-handle::after {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
 /**
  * Экран загрузки изображения
  */

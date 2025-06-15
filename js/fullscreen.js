@@ -32,7 +32,7 @@ const openBigPicture = (photo) => {
   socialCaption.textContent = photo.description;
 
   // Convert comment strings back to objects for rendering
-  const comments = photo.comments.map(commentStr => {
+  const comments = photo.comments.map((commentStr) => {
     const parts = commentStr.split(', ').reduce((acc, part) => {
       const [key, value] = part.split(': ');
       acc[key] = value;
