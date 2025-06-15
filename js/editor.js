@@ -2,6 +2,7 @@
 import noUiSlider from './nouislider-wrapper.js';
 
 const uploadForm = document.querySelector('.img-upload__form');
+const uploadInput = uploadForm.querySelector('.img-upload__input');
 const uploadPreview = uploadForm.querySelector('.img-upload__preview img');
 const scaleControl = uploadForm.querySelector('.scale__control--value');
 const scaleSmaller = uploadForm.querySelector('.scale__control--smaller');
@@ -12,6 +13,23 @@ const effectsList = uploadForm.querySelector('.effects__list');
 
 let currentEffect = 'none';
 let currentScale = 100;
+
+// Функция для загрузки и отображения выбранного изображения
+const uploadUserPhoto = () => {
+  const file = uploadInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+
+    reader.addEventListener('load', () => {
+      uploadPreview.src = reader.result;
+    });
+
+    reader.readAsDataURL(file);
+  }
+};
+
+// Обработчик изменения input[type="file"]
+uploadInput.addEventListener('change', uploadUserPhoto);
 
 const updateScale = (value) => {
   currentScale = value;
@@ -125,6 +143,8 @@ const resetEditor = () => {
   updateScale(100);
   updateEffect('none');
   effectsList.querySelector('#effect-none').checked = true;
+  uploadPreview.src = 'img/upload-default-image.jpg'; // Сброс на изображение по умолчанию
+  uploadInput.value = ''; // Сброс значения input
 };
 
 export { resetEditor };
