@@ -1,13 +1,11 @@
 // main.js
-import { createPhotos } from './data.js';
+import { getData } from './api.js';
 import { openBigPicture } from './fullscreen.js';
 import { resetEditor } from './editor.js';
+import { showAlert } from './util.js';
 
-const photos = createPhotos();
-const picturesContainer = document.querySelector('.pictures');
-
-// Render thumbnails
-const renderThumbnails = () => {
+const renderThumbnails = (photos) => {
+  const picturesContainer = document.querySelector('.pictures');
   const fragment = document.createDocumentFragment();
   const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
@@ -29,7 +27,16 @@ const renderThumbnails = () => {
   picturesContainer.appendChild(fragment);
 };
 
-renderThumbnails();
+const init = async () => {
+  try {
+    const photos = await getData();
+    renderThumbnails(photos);
+  } catch (err) {
+    showAlert(err.message);
+  }
+};
+
+init();
 
 // Handle upload form open/close
 const uploadFile = document.querySelector('#upload-file');

@@ -1,4 +1,7 @@
+// form.js
 import { isLineLengthLessOrEqual } from './functions.js';
+import { sendData } from './api.js';
+import { showSuccessMessage, showErrorMessage } from './util.js';
 
 // Safe element query and verification
 const getElement = (parent, selector) => {
@@ -20,17 +23,16 @@ const elements = {
   uploadOverlay: getElement(uploadForm, '.img-upload__overlay'),
   uploadCancel: getElement(uploadForm, '.img-upload__cancel'),
   hashtagInput: getElement(uploadForm, '.text__hashtags'),
-  descriptionInput: getElement(uploadForm, '.text__description')
+  descriptionInput: getElement(uploadForm, '.text__description'),
+  submitButton: getElement(uploadForm, '.img-upload__submit'),
 };
 
-// Initialize Pristine only if form exists
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
   errorTextClass: 'img-upload__field-wrapper--error',
 });
 
-// Validate hashtags
 const validateHashtags = (value) => {
   if (!value.trim()) {
     return true;
@@ -50,7 +52,6 @@ const validateHashtags = (value) => {
   );
 };
 
-// Add validators if elements exist
 if (elements.hashtagInput) {
   pristine.addValidator(
     elements.hashtagInput,
@@ -67,10 +68,40 @@ if (elements.descriptionInput) {
   );
 }
 
-// Event management
+const blockSubmitButton = () => {
+  elements.submitButton.disabled = true;
+  elements.submitButton.textContent = 'Отправляю...';
+};
+
+const unblockSubmitButton = () => {
+  elements.submitButton.disabled = false;
+  elements.submitButton.textContent = 'Опубликовать';
+};
+
+const setFormSubmit = (onSuccess) => {
+  uploadForm.addEventListener('submit', async (evt) => {
+    evt.preventDefault();
+
+    const isValid = pristine.validate();
+    if (!isValid) {
+      return;
+    }
+
+    try {
+      blockSubmitButton();
+      await sendData(new FormData(evt.target));
+      onSuccess();
+      showSuccessMessage();
+    } catch {
+      showErrorMessage();
+    } finally {
+      unblockSubmitButton();
+    }
+  });
+};
+
 const addEvent = (el, type, handler) => el?.addEventListener(type, handler);
 
-// Prevent Esc propagation
 [elements.hashtagInput, elements.descriptionInput].forEach((input) => {
   addEvent(input, 'keydown', (evt) => {
     if (evt.key === 'Escape') {
@@ -79,18 +110,18 @@ const addEvent = (el, type, handler) => el?.addEventListener(type, handler);
   });
 });
 
-// File input change
 addEvent(elements.uploadInput, 'change', () => {
   elements.uploadOverlay?.classList.remove('hidden');
   document.body.classList.add('modal-open');
 });
 
-// Close form
 const closeUploadForm = () => {
   uploadForm.reset();
   pristine.reset();
   elements.uploadOverlay?.classList.add('hidden');
   document.body.classList.remove('modal-open');
+  // eslint-disable-next-line no-undef
+  resetEditor();
 };
 
 addEvent(elements.uploadCancel, 'click', closeUploadForm);
@@ -100,11 +131,6 @@ addEvent(document, 'keydown', (evt) => {
   }
 });
 
-// Form submission
-addEvent(uploadForm, 'submit', (evt) => {
-  if (!pristine.validate()) {
-    evt.preventDefault();
-  }
-});
+setFormSubmit(closeUploadForm);
 
 export { closeUploadForm };
