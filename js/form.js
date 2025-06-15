@@ -1,12 +1,13 @@
 // form.js
 import { isLineLengthLessOrEqual } from './functions.js';
 import { sendData } from './api.js';
-import { showAlert, showSuccessMessage, showErrorMessage } from './util.js';
+import { showSuccessMessage, showErrorMessage } from './util.js';
 
 // Safe element query and verification
 const getElement = (parent, selector) => {
   const el = parent ? parent.querySelector(selector) : null;
   if (!el) {
+    // eslint-disable-next-line no-console
     console.warn(`Element not found: ${selector}`);
   }
   return el;
@@ -119,6 +120,7 @@ const closeUploadForm = () => {
   pristine.reset();
   elements.uploadOverlay?.classList.add('hidden');
   document.body.classList.remove('modal-open');
+  // eslint-disable-next-line no-undef
   resetEditor();
 };
 

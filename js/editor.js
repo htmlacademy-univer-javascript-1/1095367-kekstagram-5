@@ -56,7 +56,7 @@ const updateEffect = (effect) => {
     return;
   }
 
-  let min = 0;
+  const min = 0;
   let max = 100;
   let step = 1;
   let start = 100;
